@@ -1,0 +1,7 @@
+displayName = Scaling Crowdedness
+author = Rijam
+version = 1.0
+homepage = https://github.com/Rijam/RijamsMod/wiki
+hideCode = false
+hideResources = false
+includeSource = true

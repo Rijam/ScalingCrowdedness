@@ -1,0 +1,63 @@
+Mods: {
+	ScalingCrowdedness: {
+		Chat: {
+			GetChat:
+				'''
+				There are {0} Town NPCs within 25 tiles of my home.
+				There are {1} other Town NPCs within 120 tiles of my home.
+				'''
+			OnEnterWorld:
+				'''
+				The minimum number of Town NPCs nearby to start crowding is {0}.
+				The minimum number of Town NPCs nearby hate the crowd is {1}.
+				'''
+		}
+
+		Logger: {
+			FoundNPC: Found a Town NPC with ID {0}
+			NumberOfNPCs: Found {0} Town NPCs
+			ScalingMultiple: scalingMultiple is {0}
+		}
+
+		Commands: {
+			Description:
+				'''
+				  [c/00ffff:TownNPCChat <true/false>]
+				    [c/aaaaaa:Town NPCs will say how many other Town NPCs are near them in chat.]
+				    [c/aaaaaa:Example:] [c/008080:/sc TownNPCChat true]
+				  [c/00ffff:EnterWorld <true/false>]
+				    [c/aaaaaa:The new thresholds will be displayed in chat when entering a world.]
+				    [c/aaaaaa:Example:] [c/008080:/sc EnterWorld true]
+				  [c/00ffff:GetThreshold]
+				    [c/aaaaaa:Displays the current threshold in chat.]
+				    [c/aaaaaa:Example:] [c/008080:/sc GetThreshold]
+				'''
+
+			TownNPCChat: {
+				Enable:
+					'''
+					TownNPCChat set to [c/00ff00:true].
+					[c/bbbbbb:Town NPCs] [c/ffffff:will] [c/bbbbbb:say how many other Town NPCs are near them in chat.]
+					'''
+				Disable:
+					'''
+					TownNPCChat set to [c/ff0000:false].
+					[c/bbbbbb:Town NPCs] [c/ffffff:will not] [c/bbbbbb:say how many other Town NPCs are near them in chat.]
+					'''
+			}
+
+			EnterWorld: {
+				Enable:
+					'''
+					EnterWorld set to [c/00ff00:true].
+					[c/bbbbbb:The new thresholds] [c/ffffff:will] [c/bbbbbb:be displayed in chat when entering a world.]
+					'''
+				Disable:
+					'''
+					EnterWorld set to [c/ff0000:false].
+					[c/bbbbbb:The new thresholds] [c/ffffff:will not] [c/bbbbbb:be displayed in chat when entering a world.]
+					'''
+			}
+		}
+	}
+}
