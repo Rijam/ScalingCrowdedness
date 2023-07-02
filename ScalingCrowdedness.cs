@@ -1,15 +1,17 @@
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Terraria;
 using Terraria.Chat;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
+using Terraria.ModLoader.Config;
 
 namespace ScalingCrowdedness
 {
@@ -124,27 +126,13 @@ namespace ScalingCrowdedness
 		/// </summary>
 		public void FigureOutTheScaling()
 		{
-			// If the number of Town NPCs loaded is <30, don't scale anything. (There are 26 vanilla Town NPCs)
-			if (numOfTownNPCsLoaded < 30)
-			{
-				return;
-			}
-			// Subtract 29 to not count those.
-			int countPast29 = numOfTownNPCsLoaded - 29;
-			if (countPast29 > 0)
-			{
-				// Divide by 10 (integer division) and add 1 to find the multiple.
-				// Example: 30 Town NPCs loaded gives +1. (1 / 10 = 0) + 1 = 1
-				// Example: 55 Town NPCs loaded gives +3. (26 / 10 = 2) + 1 = 3
-				int scalingMultiple = (countPast29 / 10) + 1;
+			minimumStartCrowding = InformationElement.MakeTheoreticalThreshold(numOfTownNPCsLoaded, out int scalingMultiple); // Default: 4 (Minus 1 is 3)
+			minimumHateCrowded = minimumStartCrowding + 3;
 #if DEBUG
-				ModContent.GetInstance<ScalingCrowdedness>().Logger.DebugFormat("scalingMultiple is {0}", scalingMultiple);
+			ModContent.GetInstance<ScalingCrowdedness>().Logger.DebugFormat("scalingMultiple is {0}", scalingMultiple);
 #endif
-				minimumStartCrowding += scalingMultiple;
-				minimumHateCrowded += scalingMultiple;
-				ModContent.GetInstance<ScalingCrowdedness>().Logger.InfoFormat("The minimum number of Town NPCs nearby to start crowding is {0}", minimumStartCrowding);
-				ModContent.GetInstance<ScalingCrowdedness>().Logger.InfoFormat("The minimum number of Town NPCs nearby hate the crowd is {0}", minimumHateCrowded);
-			}
+			ModContent.GetInstance<ScalingCrowdedness>().Logger.InfoFormat("The minimum number of Town NPCs nearby to start crowding is {0}", minimumStartCrowding);
+			ModContent.GetInstance<ScalingCrowdedness>().Logger.InfoFormat("The minimum number of Town NPCs nearby hate the crowd is {0}", minimumHateCrowded);
 		}
 
 		/// <summary>
@@ -295,7 +283,7 @@ namespace ScalingCrowdedness
 		{
 			// Say in chat how many Town NPCs are nearby.
 //#if TML_2023_6
-			if (!NPCID.Sets.NoTownNPCHappiness[npc.type] && !NPCID.Sets.IsTownPet[npc.type] && Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC)
+			if (!NPCID.Sets.NoTownNPCHappiness[npc.type] && !NPCID.Sets.IsTownPet[npc.type] && ModContent.GetInstance<ScalingCrowdednessConfigClient>().ShowNumbersWhenTalkingToNPC)
 //#endif
 #if TML_2022_9
 			if (!NPCID.Sets.IsTownPet[npc.type] && Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC)
@@ -316,8 +304,8 @@ namespace ScalingCrowdedness
 
 	public class ScalingCrowdednessPlayer : ModPlayer
 	{
-		public bool showNumbersWhenTalkingToNPC = false;
-		public bool showNumbersEnteringWorld = false;
+		//public bool showNumbersWhenTalkingToNPC = false;
+		//public bool showNumbersEnteringWorld = false;
 
 //#if TML_2023_6
 		public override void OnEnterWorld()
@@ -327,17 +315,18 @@ namespace ScalingCrowdedness
 #endif
 		{
 			// Say what the scaling thresholds are when entering the world.
-			if (Main.netMode == NetmodeID.SinglePlayer && showNumbersEnteringWorld)
+			if (Main.netMode == NetmodeID.SinglePlayer && ModContent.GetInstance<ScalingCrowdednessConfigClient>().ShowNumbersEnteringWorld)
 			{
 				Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Chat.OnEnterWorld", ModContent.GetInstance<ScalingCrowdedness>().minimumStartCrowding, ModContent.GetInstance<ScalingCrowdedness>().minimumHateCrowded));
 			}
-			else if (showNumbersEnteringWorld)
+			else if (ModContent.GetInstance<ScalingCrowdednessConfigClient>().ShowNumbersEnteringWorld)
 			{
 				ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Mods.ScalingCrowdedness.Chat.OnEnterWorld", ModContent.GetInstance<ScalingCrowdedness>().minimumStartCrowding, ModContent.GetInstance<ScalingCrowdedness>().minimumHateCrowded), Color.White);
 			}
 		}
 
 		// Save the players' choices.
+		/*
 		public override void SaveData(TagCompound tag)
 		{
 			if (showNumbersWhenTalkingToNPC)
@@ -355,6 +344,7 @@ namespace ScalingCrowdedness
 			showNumbersWhenTalkingToNPC = tag.ContainsKey("showNumbersWhenTalkingToNPC");
 			showNumbersEnteringWorld = tag.ContainsKey("showNumbersEnteringWorld");
 		}
+		*/
 	}
 
 	public class ScalingCrowdednessCommands : ModCommand
@@ -370,18 +360,24 @@ namespace ScalingCrowdedness
 				Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.Description"));
 				return;
 			}
-			
+
+			ScalingCrowdednessConfigClient configClient = ModContent.GetInstance<ScalingCrowdednessConfigClient>();
+
 			if (args[0].ToLower() == "townnpcchat" && args.Length >= 2)
 			{
 				string args1 = args[1].ToLower();
 				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes")
 				{
-					Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = true;
+					configClient.ShowNumbersWhenTalkingToNPC = true;
+					ModConfigSave(configClient);
+					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = true;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.TownNPCChat.Enable"));
 				}
 				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no")
 				{
-					Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = false;
+					configClient.ShowNumbersWhenTalkingToNPC = false;
+					ModConfigSave(configClient);
+					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = false;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.TownNPCChat.Disable"));
 				}
 				else
@@ -395,12 +391,16 @@ namespace ScalingCrowdedness
 				string args1 = args[1].ToLower();
 				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes")
 				{
-					Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = true;
+					configClient.ShowNumbersEnteringWorld = true;
+					ModConfigSave(configClient);
+					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = true;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.EnterWorld.Enable"));
 				}
 				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no")
 				{
-					Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = false;
+					configClient.ShowNumbersEnteringWorld = false;
+					ModConfigSave(configClient);
+					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = false;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.EnterWorld.Disable"));
 				}
 				else
@@ -418,6 +418,25 @@ namespace ScalingCrowdedness
 			{
 				Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.Description"));
 			}
+		}
+
+		/// <summary>
+		/// Copied from tModLoader because it was originally internal. Maybe this is a bad idea? lol
+		/// </summary>
+		/// <param name="modConfig">The config instance that needs to be saved.</param>
+		private static void ModConfigSave(ModConfig modConfig)
+		{
+			// Added for maybe more safety.
+			if (modConfig is null || ConfigManager.ModConfigPath is null || ConfigManager.serializerSettings is null)
+			{
+				return;
+			}
+
+			Directory.CreateDirectory(ConfigManager.ModConfigPath);
+			string filename = modConfig.Mod.Name + "_" + modConfig.Name + ".json";
+			string path = Path.Combine(ConfigManager.ModConfigPath, filename);
+			string json = JsonConvert.SerializeObject(modConfig, ConfigManager.serializerSettings);
+			File.WriteAllText(path, json);
 		}
 	}
 }
