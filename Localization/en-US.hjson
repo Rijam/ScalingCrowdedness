@@ -1,63 +1,189 @@
 Mods: {
 	ScalingCrowdedness: {
-		Chat: {
-			GetChat:
+Chat: {
+	GetChat:
+		'''
+		There are {0} Town NPCs within 25 tiles of my home.
+		There are {1} other Town NPCs within 120 tiles of my home.
+		'''
+	OnEnterWorld:
+		'''
+		The minimum number of Town NPCs nearby to start crowding is {0}.
+		The minimum number of Town NPCs nearby hate the crowd is {1}.
+		'''
+}
+
+Logger: {
+	FoundNPC: Found a Town NPC with ID {0}
+	NumberOfNPCs: Found {0} Town NPCs
+	ScalingMultiple: scalingMultiple is {0}
+}
+
+Commands: {
+	Description:
+		'''
+		  [c/00ffff:TownNPCChat <true/false>]
+		    [c/aaaaaa:Town NPCs will say how many other Town NPCs are near them in chat.]
+		    [c/aaaaaa:Example:] [c/008080:/sc TownNPCChat true]
+		  [c/00ffff:EnterWorld <true/false>]
+		    [c/aaaaaa:The new thresholds will be displayed in chat when entering a world.]
+		    [c/aaaaaa:Example:] [c/008080:/sc EnterWorld true]
+		  [c/00ffff:GetThreshold]
+		    [c/aaaaaa:Displays the current threshold in chat.]
+		    [c/aaaaaa:Example:] [c/008080:/sc GetThreshold]
+		'''
+
+	TownNPCChat: {
+		Enable:
+			'''
+			TownNPCChat set to [c/00ff00:true].
+			[c/bbbbbb:Town NPCs] [c/ffffff:will] [c/bbbbbb:say how many other Town NPCs are near them in chat.]
+			'''
+		Disable:
+			'''
+			TownNPCChat set to [c/ff0000:false].
+			[c/bbbbbb:Town NPCs] [c/ffffff:will not] [c/bbbbbb:say how many other Town NPCs are near them in chat.]
+			'''
+	}
+
+	EnterWorld: {
+		Enable:
+			'''
+			EnterWorld set to [c/00ff00:true].
+			[c/bbbbbb:The new thresholds] [c/ffffff:will] [c/bbbbbb:be displayed in chat when entering a world.]
+			'''
+		Disable:
+			'''
+			EnterWorld set to [c/ff0000:false].
+			[c/bbbbbb:The new thresholds] [c/ffffff:will not] [c/bbbbbb:be displayed in chat when entering a world.]
+			'''
+	}
+}
+
+Configs: {
+	ScalingCrowdednessConfigClient: {
+		DisplayName: Scaling Crowdedness Config Client
+
+		ShowNumbersWhenTalkingToNPC: {
+			Label: "[i:MusicBoxTownDay]  Show Number of Neighbors When Talking To a Town NPC"
+			Tooltip:
 				'''
-				There are {0} Town NPCs within 25 tiles of my home.
-				There are {1} other Town NPCs within 120 tiles of my home.
-				'''
-			OnEnterWorld:
-				'''
-				The minimum number of Town NPCs nearby to start crowding is {0}.
-				The minimum number of Town NPCs nearby hate the crowd is {1}.
+				When talking to a Town NPC, the number of neighbors near that Town NPC will be shown in chat.
+				This config can also be changed with a command:
+				/sc TownNPCChat <true/false>
 				'''
 		}
 
-		Logger: {
-			FoundNPC: Found a Town NPC with ID {0}
-			NumberOfNPCs: Found {0} Town NPCs
-			ScalingMultiple: scalingMultiple is {0}
+		ShowNumbersEnteringWorld: {
+			Label: "[i:WorldGlobe]  Show Threshold Numbers When Entering a World"
+			Tooltip:
+				'''
+				When entering a world, the current scaling for when crowding starts will be shown in chat.
+				This config can also be changed with a command:
+				/sc EnterWorld <true/false>
+				'''
 		}
 
-		Commands: {
-			Description:
-				'''
-				  [c/00ffff:TownNPCChat <true/false>]
-				    [c/aaaaaa:Town NPCs will say how many other Town NPCs are near them in chat.]
-				    [c/aaaaaa:Example:] [c/008080:/sc TownNPCChat true]
-				  [c/00ffff:EnterWorld <true/false>]
-				    [c/aaaaaa:The new thresholds will be displayed in chat when entering a world.]
-				    [c/aaaaaa:Example:] [c/008080:/sc EnterWorld true]
-				  [c/00ffff:GetThreshold]
-				    [c/aaaaaa:Displays the current threshold in chat.]
-				    [c/aaaaaa:Example:] [c/008080:/sc GetThreshold]
-				'''
-
-			TownNPCChat: {
-				Enable:
-					'''
-					TownNPCChat set to [c/00ff00:true].
-					[c/bbbbbb:Town NPCs] [c/ffffff:will] [c/bbbbbb:say how many other Town NPCs are near them in chat.]
-					'''
-				Disable:
-					'''
-					TownNPCChat set to [c/ff0000:false].
-					[c/bbbbbb:Town NPCs] [c/ffffff:will not] [c/bbbbbb:say how many other Town NPCs are near them in chat.]
-					'''
-			}
-
-			EnterWorld: {
-				Enable:
-					'''
-					EnterWorld set to [c/00ff00:true].
-					[c/bbbbbb:The new thresholds] [c/ffffff:will] [c/bbbbbb:be displayed in chat when entering a world.]
-					'''
-				Disable:
-					'''
-					EnterWorld set to [c/ff0000:false].
-					[c/bbbbbb:The new thresholds] [c/ffffff:will not] [c/bbbbbb:be displayed in chat when entering a world.]
-					'''
-			}
+		NextConfigClient: {
+			Label: "[c/999999:Change to the server config by clicking the arrow on the bottom right.] >"
+			Tooltip: "The sever config is where you can adjust the crowding settings."
 		}
 	}
+
+	ScalingCrowdednessConfigServer: {
+		DisplayName: Scaling Crowdedness Config Server
+
+		ManualAdjustmentBaseCrowdingStart: {
+			Label: "[i:GuideVoodooDoll]  Base Crowding Start"
+			Tooltip:
+				'''
+				The base number for which crowding will start.
+				In vanilla, 4 or more neighbors will be considered crowded.
+				Values less than 4 make crowding start sooner.
+				Values greater than 4 make crowding start later.
+
+				Default value: 4
+
+				Reload Required.
+				'''
+		}
+
+		ManualAdjustmentScalingStart: {
+			Label: "[i:LaserRuler]  Scaling Start"
+			Tooltip:
+				'''
+				The number of Town NPCs required for the mod to start scaling the threshold.
+				By default, the mod will start increasing the threshold at and after 30 Town NPCs.
+				Values less than 30 will make the scaling start sooner.
+				Values greater than 30 will make the scaling start later.
+
+				Default value: 30
+
+				Reload Required.
+				'''
+		}
+
+		ManualAdjustmentScalingIncrements: {
+			Label: "[i:Ruler]  Scaling Increments"
+			# Spaces are important. Tabs are replaced with a * in game.
+			Tooltip:
+				'''
+				The number of Town NPCs required for the mod's scaling to increase the crowding threshold.
+				By default, the mod will increase the crowding threshold every 10 Town NPCs
+				    (After the Scaling Start value)
+				Values less than 10 will make the scaling increase the threshold more rapidly.
+				Values greater than 10 will make the scaling increase the threshold slower.
+
+				Default value: 10
+
+				Reload Required.
+				'''
+		}
+
+		ScalingInfo: {
+			# Label is empty on purpose
+			Label: " "
+			Tooltip:
+				'''
+				This is a preview of what the new number of Town NPCs nearby to before crowding starts.
+				If a Town NPC has more neighbors than the threshold, they will start to become unhappy.
+
+				Vanilla behavior:
+				    26 vanilla Town NPCs
+				    3 neighbors before crowding starts. (4th neighbors will make them unhappy.)
+
+				The threshold can be displayed in chat with a command:
+				/sc GetThreshold
+				'''
+			# This the text that actually displays
+			String: There are [c/ffff00:{0}] Town NPCs loaded.  The new threshold would be [c/ffff00:{1}].
+		}
+
+		CalculationInfo: {
+			Label: "[c/999999:Calculation Info]"
+			# Spaces are important. Tabs are replaced with a * in game.
+			Tooltip:
+				'''
+				Here is how the threshold is calculated:
+				  *  First, the number of Town NPCs loaded is counted.
+				     *  This excludes Town Pets and NPCs who are not affected by happiness (like the Traveling Merchant).
+				  *  Then, 1 is subtracted from the 'Base Crowding Start' number.
+				  *  If the number of Town NPCs loaded is less than the 'Start Scaling' number, the calculation stops.
+				  *  If the number of Town NPCs loaded is greater than or equal to the 'Start Scaling'...
+				  *  Then, 1 is subtracted from the 'Start Scaling' number, and then that is subtracted from the number of loaded Town NPCs.
+				  *  Next, that number is divided by the 'Scaling Increments' number, rounded down.
+				  *  Lastly, 1 is added to that number and the calculation stops.
+				Pseudocode representation:
+				    minimumStartCrowding = BaseCrowdingStart - 1
+				    if (numOfTownNPCsLoaded < ScalingStart)
+				        return minimumStartCrowding
+				    else
+				        countPastScalingStart = numOfTownNPCsLoaded - (ScalingStart - 1)
+				        minimumStartCrowding += (countPastScalingStart / ScalingIncrements) + 1
+				        return minimumStartCrowding
+				'''
+		}
+	}
+}
+}
 }

@@ -26,13 +26,15 @@ Example: 40 Town NPCs loaded:
 
 This mod has a few commands to show information:
 
-[code]/sc[/code]
-  [code]TownNPCChat <true/false>[/code]
+[i]/sc[/i]
+[list]
+[*] [i]TownNPCChat <true/false>[/i]
     Town NPCs will say how many other Town NPCs are near them in chat.
-    Example: [code]/sc TownNPCChat true[/code]
-  [code]EnterWorld <true/false>[/code]
+    Example: [i]/sc TownNPCChat true[/i]
+[*] [i]EnterWorld <true/false>[/i]
     The new thresholds will be displayed in chat when entering a world.
-    Example: [code]/sc EnterWorld true[/code]
-  [code]GetThreshold[/code]
+    Example: [i]/sc EnterWorld true[/i]
+[*] [i]GetThreshold[/i]
     Displays the current threshold in chat.
-    Example: [code]:/sc GetThreshold[/code]
+    Example: [i]/sc GetThreshold[/i]
+[/list]
