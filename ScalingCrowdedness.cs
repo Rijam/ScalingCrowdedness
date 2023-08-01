@@ -26,12 +26,7 @@ namespace ScalingCrowdedness
 		{
 			numOfTownNPCsLoaded = FindNumberOfTownNPCsLoad();
 			FigureOutTheScaling();
-//#if TML_2023_6
 			Terraria.GameContent.IL_ShopHelper.ProcessMood += ShopHelperProcessMoodEdit;
-//#endif
-#if TML_2022_9
-			IL.Terraria.GameContent.ShopHelper.ProcessMood += ShopHelperProcessMoodEdit;
-#endif
 		}
 
 		/// <summary>
@@ -45,12 +40,7 @@ namespace ScalingCrowdedness
 			{
 				NPC npc = new();
 				npc.SetDefaults(i);
-//#if TML_2023_6
 				if (npc.townNPC && !NPCID.Sets.NoTownNPCHappiness[npc.type] && !NPCID.Sets.IsTownPet[npc.type])
-//#endif
-#if TML_2022_9
-				if (npc.townNPC && !NPCID.Sets.IsTownPet[npc.type])
-#endif
 				{
 					count++;
 #if DEBUG
@@ -251,12 +241,7 @@ namespace ScalingCrowdedness
 				}
 
 				NPC npc2 = Main.npc[i];
-//#if TML_2023_6
 				if (npc2.active && npc2.townNPC && !NPCID.Sets.NoTownNPCHappiness[npc2.type] && !WorldGen.TownManager.CanNPCsLiveWithEachOther_ShopHelper(npc, npc2))
-//#endif
-#if TML_2022_9
-				if (npc2.active && npc2.townNPC && !WorldGen.TownManager.CanNPCsLiveWithEachOther_ShopHelper(npc, npc2))
-#endif
 				{
 					Vector2 npc2HomeTile = new(npc2.homeTileX, npc2.homeTileY);
 					if (npc2.homeless)
@@ -282,12 +267,7 @@ namespace ScalingCrowdedness
 		public override void GetChat(NPC npc, ref string chat)
 		{
 			// Say in chat how many Town NPCs are nearby.
-//#if TML_2023_6
 			if (!NPCID.Sets.NoTownNPCHappiness[npc.type] && !NPCID.Sets.IsTownPet[npc.type] && ModContent.GetInstance<ScalingCrowdednessConfigClient>().ShowNumbersWhenTalkingToNPC)
-//#endif
-#if TML_2022_9
-			if (!NPCID.Sets.IsTownPet[npc.type] && Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC)
-#endif
 			{
 				GetNearbyResidentNPCs(npc, out int npcsWithinHouse, out int npcsWithinVillage);
 				if (Main.netMode == NetmodeID.SinglePlayer)
@@ -307,13 +287,11 @@ namespace ScalingCrowdedness
 		//public bool showNumbersWhenTalkingToNPC = false;
 		//public bool showNumbersEnteringWorld = false;
 
-//#if TML_2023_6
 		public override void OnEnterWorld()
-//#endif
-#if TML_2022_9
-		public override void OnEnterWorld(Player player)
-#endif
 		{
+			// Recalculate the thresholds when entering a world (if the config was changed in the main menu).
+			ModContent.GetInstance<ScalingCrowdedness>()?.FigureOutTheScaling();
+
 			// Say what the scaling thresholds are when entering the world.
 			if (Main.netMode == NetmodeID.SinglePlayer && ModContent.GetInstance<ScalingCrowdednessConfigClient>().ShowNumbersEnteringWorld)
 			{

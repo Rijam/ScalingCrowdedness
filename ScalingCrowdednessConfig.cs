@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using ReLogic.Graphics;
 using Terraria.Localization;
 using Terraria.UI.Chat;
+using Terraria.ID;
 
 namespace ScalingCrowdedness
 {
@@ -39,24 +40,67 @@ namespace ScalingCrowdedness
 		[DefaultValue(4)]
 		[Range(1, 11)]
 		[Slider]
-		[ReloadRequired]
 		public int ManualAdjustmentBaseCrowdingStart { get; set; }
 
 		[DefaultValue(30)]
 		[Range(5, 100)]
 		[Slider]
-		[ReloadRequired]
 		public int ManualAdjustmentScalingStart { get; set; }
 
 		[DefaultValue(10)]
 		[Range(5, 20)]
 		[Slider]
-		[ReloadRequired]
 		public int ManualAdjustmentScalingIncrements { get; set; }
 
 		[CustomModConfigItem(typeof(CalculationInformation))]
 		public bool CalculationInfo = new();
 
+		public override void OnChanged()
+		{
+			// If the config was changed, recalculate the thresholds.
+			// Don't recalculate if in the main menu (causes problems during mod loading).
+			// But then it also doesn't update if you change the config in the main menu.
+			// ScalingCrowdednessPlayer.OnEnterWorld() also recalculates the thresholds to solve that.
+			if (Main.gameMenu == false)
+			{
+				ModContent.GetInstance<ScalingCrowdedness>()?.FigureOutTheScaling();
+			}
+		}
+
+		/* Not written by Rijam*/
+		public static bool IsPlayerLocalServerOwner(int whoAmI)
+		{
+			if (Main.netMode == NetmodeID.MultiplayerClient)
+			{
+				return Netplay.Connection.Socket.GetRemoteAddress().IsLocalHost();
+			}
+
+			for (int i = 0; i < Main.maxPlayers; i++)
+			{
+				RemoteClient client = Netplay.Clients[i];
+				if (client.State == 10 && i == whoAmI && client.Socket.GetRemoteAddress().IsLocalHost())
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public override bool AcceptClientChanges(ModConfig pendingConfig, int whoAmI, ref string message)
+		{
+			if (Main.netMode == NetmodeID.SinglePlayer)
+			{
+				return true;
+			}
+
+			if (!IsPlayerLocalServerOwner(whoAmI))
+			{
+				message = Language.GetTextValue("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
+				return false;
+			}
+			return base.AcceptClientChanges(pendingConfig, whoAmI, ref message);
+		}
+		/* */
 	}
 
 	// This custom config UI element uses vanilla config elements paired with custom drawing.

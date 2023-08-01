@@ -101,8 +101,6 @@ Configs: {
 				Values greater than 4 make crowding start later.
 
 				Default value: 4
-
-				Reload Required.
 				'''
 		}
 
@@ -116,8 +114,6 @@ Configs: {
 				Values greater than 30 will make the scaling start later.
 
 				Default value: 30
-
-				Reload Required.
 				'''
 		}
 
@@ -133,8 +129,6 @@ Configs: {
 				Values greater than 10 will make the scaling increase the threshold slower.
 
 				Default value: 10
-
-				Reload Required.
 				'''
 		}
 
@@ -181,5 +175,7 @@ Configs: {
 				        return minimumStartCrowding
 				'''
 		}
+
+		MultiplayerMessage: You are not the server owner so you can not change this config!
 	}
 }

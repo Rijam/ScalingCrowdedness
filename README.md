@@ -1,4 +1,4 @@
-**Scaling Crowdedness** is a simple mod that increases the number of Town NPCs that can be near each other before the crowding penalty starts. The increase is based on how many Town NPCs are loaded. This means you can have more Town NPCs living near each other without having prices raised.
+**Scaling Crowdedness** is a simple mod that increases the number of Town NPCs that can be near each other before the crowding happiness penalty starts. The increase is based on how many Town NPCs are loaded. This means you can have more Town NPCs living near each other without having prices raised.
 
 Vanilla behavior:
 -  \>= 4 npcsWithinHouse causes prices to be multiplied by 1.05
