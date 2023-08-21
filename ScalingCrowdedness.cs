@@ -27,6 +27,7 @@ namespace ScalingCrowdedness
 			numOfTownNPCsLoaded = FindNumberOfTownNPCsLoad();
 			FigureOutTheScaling();
 			Terraria.GameContent.IL_ShopHelper.ProcessMood += ShopHelperProcessMoodEdit;
+			Terraria.GameContent.IL_ShopHelper.GetNearbyResidentNPCs += ShopHelperGetNearbyResidentNPCs; 
 		}
 
 		/// <summary>
@@ -139,7 +140,7 @@ namespace ScalingCrowdedness
 			// This 3 is the start of the crowding 
 			if (!c.TryGotoNext(i => i.MatchLdcI4(3)))
 			{
-				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 1 unable to be applied!");
+				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 1 of ShopHelperProcessMoodEdit unable to be applied! ");
 				return; // Patch unable to be applied
 			}
 
@@ -147,7 +148,7 @@ namespace ScalingCrowdedness
 			c.Index++;
 			// Push the ShopHelper instance onto the stack
 			c.Emit(OpCodes.Ldarg_0);
-			// Call a delegate using the int and Player from the stack.
+			// Call a delegate using the int and ShopHelper from the stack.
 			c.EmitDelegate<Func<int, ShopHelper, int>>((returnValue, shopHelper) => {
 				// Regular c# code
 				// Original code:
@@ -163,7 +164,7 @@ namespace ScalingCrowdedness
 			// This 3 is the start of the price multiplication. We want to change this or the prices will be multiplied more than they should.
 			if (!c.TryGotoNext(i => i.MatchLdcI4(3)))
 			{
-				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 2 unable to be applied!");
+				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 2 of ShopHelperProcessMoodEdit unable to be applied!");
 				return; // Patch unable to be applied
 			}
 
@@ -171,7 +172,7 @@ namespace ScalingCrowdedness
 			c.Index++;
 			// Push the ShopHelper instance onto the stack
 			c.Emit(OpCodes.Ldarg_0);
-			// Call a delegate using the int and Player from the stack.
+			// Call a delegate using the int and ShopHelper from the stack.
 			c.EmitDelegate<Func<int, ShopHelper, int>>((returnValue, shopHelper) => {
 				// Regular c# code
 				// Original code:
@@ -189,7 +190,7 @@ namespace ScalingCrowdedness
 			// 6 is the start of the Hate Crowded.
 			if (!c.TryGotoNext(i => i.MatchLdcI4(6)))
 			{
-				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 3 unable to be applied!");
+				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 3 of ShopHelperProcessMoodEdit unable to be applied!");
 				return; // Patch unable to be applied
 			}
 
@@ -197,7 +198,7 @@ namespace ScalingCrowdedness
 			c.Index++;
 			// Push the ShopHelper instance onto the stack
 			c.Emit(OpCodes.Ldarg_0);
-			// Call a delegate using the int and Player from the stack.
+			// Call a delegate using the int and ShopHelper from the stack.
 			c.EmitDelegate<Func<int, ShopHelper, int>>((returnValue, shopHelper) => {
 				// Regular c# code
 				// Original code:
@@ -211,6 +212,93 @@ namespace ScalingCrowdedness
 
 				return ModContent.GetInstance<ScalingCrowdedness>().minimumHateCrowded;
 			});
+		}
+
+		/// <summary>
+		/// Applies 2 IL edits
+		/// </summary>
+		/// <param name="il">IL</param>
+		private static void ShopHelperGetNearbyResidentNPCs(ILContext il)
+		{
+			ILCursor c = new(il);
+
+			// Try to find where 25f is placed onto the stack
+			// This 25f is the npcsWithinHouse distance
+			if (!c.TryGotoNext(i => i.MatchLdcR4(25f)))
+			{
+				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 1 ShopHelperGetNearbyResidentNPCs unable to be applied!");
+				return; // Patch unable to be applied
+			}
+
+			// Move the cursor after 25f and onto the ret op.
+			c.Index++;
+			// Push the ShopHelper instance onto the stack
+			c.Emit(OpCodes.Ldarg_0);
+			// Call a delegate using the float and ShopHelper from the stack.
+			c.EmitDelegate<Func<float, ShopHelper, float>>((returnValue, shopHelper) => {
+				// Regular c# code
+				// Original code:
+
+				// if (num < 25f) {
+				//		list.Add(nPC);
+				//		npcsWithinHouse++;
+				// }
+
+				// Change the 25f to the TownNPCsWithinHouseRange value.
+
+				return (float)ModContent.GetInstance<ScalingCrowdednessConfigServer>().TownNPCsWithinHouseRange;
+			});
+
+			// Try to find where 120f is placed onto the stack
+			// This 120f is the npcsWithinVillage distance
+			if (!c.TryGotoNext(i => i.MatchLdcR4(120f)))
+			{
+				ModContent.GetInstance<ScalingCrowdedness>().Logger.Debug("Patch 2 ShopHelperGetNearbyResidentNPCs unable to be applied!");
+				return; // Patch unable to be applied
+			}
+
+			// Move the cursor after 120f and onto the ret op.
+			c.Index++;
+			// Push the ShopHelper instance onto the stack
+			c.Emit(OpCodes.Ldarg_0);
+			// Call a delegate using the float and ShopHelper from the stack.
+			c.EmitDelegate<Func<float, ShopHelper, float>>((returnValue, shopHelper) => {
+				// Regular c# code
+				// Original code:
+
+				// else if (num < 120f) {
+				//		npcsWithinVillage++;
+				// }
+
+				// Change the 120f to the TownNPCsWithinVillageRange value.
+
+				return (float)ModContent.GetInstance<ScalingCrowdednessConfigServer>().TownNPCsWithinVillageRange;
+			});
+		}
+
+		// Adapted from absoluteAquarian's GraphicsLib
+		public override object Call(params object[] args)
+		{
+			if (args is null)
+				throw new ArgumentNullException(nameof(args));
+
+			if (args[0] is not string function)
+				throw new ArgumentException("Expected a function name for the first argument");
+
+			ScalingCrowdednessConfigServer configServer = ModContent.GetInstance<ScalingCrowdednessConfigServer>();
+
+			return function switch
+			{
+				"ManualAdjustmentBaseCrowdingStart" or "BaseCrowdingStart" => configServer.ManualAdjustmentBaseCrowdingStart,
+				"ManualAdjustmentScalingStart" or "ScalingStart" => configServer.ManualAdjustmentScalingStart,
+				"ManualAdjustmentScalingIncrements" or "ScalingIncrements" => configServer.ManualAdjustmentScalingIncrements,
+				"TownNPCsWithinHouseRange" or "HousingNeighborRange" => configServer.TownNPCsWithinHouseRange,
+				"TownNPCsWithinVillageRange" or "HousingVillageRange" => configServer.TownNPCsWithinVillageRange,
+				"numOfTownNPCsLoaded" => numOfTownNPCsLoaded,
+				"minimumStartCrowding" => minimumStartCrowding,
+				"minimumHateCrowded" => minimumHateCrowded,
+				_ => throw new ArgumentException($"Function \"{function}\" is not defined by ScalingCrowdedness"),
+			};
 		}
 	}
 	public class GlobalNPCs : GlobalNPC
@@ -250,12 +338,12 @@ namespace ScalingCrowdedness
 					}
 
 					float distanceBetweenHomes = Vector2.Distance(npc1HomeTile, npc2HomeTile);
-					if (distanceBetweenHomes < 25f)
+					if (distanceBetweenHomes < ModContent.GetInstance<ScalingCrowdednessConfigServer>().TownNPCsWithinHouseRange) // 25f by default
 					{
 						list.Add(npc2);
 						npcsWithinHouse++;
 					}
-					else if (distanceBetweenHomes < 120f)
+					else if (distanceBetweenHomes < ModContent.GetInstance<ScalingCrowdednessConfigServer>().TownNPCsWithinVillageRange) // 120f by default
 					{
 						npcsWithinVillage++;
 					}
@@ -270,13 +358,14 @@ namespace ScalingCrowdedness
 			if (!NPCID.Sets.NoTownNPCHappiness[npc.type] && !NPCID.Sets.IsTownPet[npc.type] && ModContent.GetInstance<ScalingCrowdednessConfigClient>().ShowNumbersWhenTalkingToNPC)
 			{
 				GetNearbyResidentNPCs(npc, out int npcsWithinHouse, out int npcsWithinVillage);
+				ScalingCrowdednessConfigServer configServer = ModContent.GetInstance<ScalingCrowdednessConfigServer>();
 				if (Main.netMode == NetmodeID.SinglePlayer)
 				{
-					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Chat.GetChat", npcsWithinHouse, npcsWithinVillage));
+					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Chat.GetChat", npcsWithinHouse, npcsWithinVillage, configServer.TownNPCsWithinHouseRange, configServer.TownNPCsWithinVillageRange));
 				}
 				else
 				{
-					ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Mods.ScalingCrowdedness.Chat.GetChat", npcsWithinHouse, npcsWithinVillage), Color.White);
+					ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Mods.ScalingCrowdedness.Chat.GetChat", npcsWithinHouse, npcsWithinVillage, configServer.TownNPCsWithinHouseRange, configServer.TownNPCsWithinVillageRange), Color.White);
 				}
 			}
 		}

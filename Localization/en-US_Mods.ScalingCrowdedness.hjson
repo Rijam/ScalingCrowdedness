@@ -1,8 +1,8 @@
 Chat: {
 	GetChat:
 		'''
-		There are {0} Town NPCs within 25 tiles of my home.
-		There are {1} other Town NPCs within 120 tiles of my home.
+		There are {0} Town NPCs within {2} tiles of my home.
+		There are {1} other Town NPCs within {3} tiles of my home.
 		'''
 	OnEnterWorld:
 		'''
@@ -129,6 +129,35 @@ Configs: {
 				Values greater than 10 will make the scaling increase the threshold slower.
 
 				Default value: 10
+				'''
+		}
+
+		TownNPCsWithinHouseRange: {
+			Label: "[i:MusicBoxTownDay]  Housing Neighbor Range"
+			Tooltip:
+				'''
+				The distance between Town NPCs' housing flags that will count them as being close neighbors.
+				By default, 25 tiles is the maximum range for two Town NPCs to be considered neighbors.
+				Values less than 25 require Town NPCs be closer together to count as close neighbors.
+				Values greater than 25 will make Town NPCs that are further away count as neighbors.
+
+				Default value: 25
+				'''
+		}
+
+		TownNPCsWithinVillageRange: {
+			Label: "[i:MusicBoxTownNight]  Housing Village Range"
+			Tooltip:
+				'''
+				The distance between Town NPCs' housing flags that will count them as being in the same village.
+				By default, 120 tiles is the maximum range for two Town NPCs to be considered in the same village.
+				Values less than 120 require Town NPCs be closer together to count as being in the same village.
+				Values greater than 120 will make Town NPCs that are further away count as being in the same village.
+
+				This will do nothing if it is less than the Housing Neighbor Range.
+				(This value is only really used for the Love Space bonus.)
+
+				Default value: 120
 				'''
 		}
 

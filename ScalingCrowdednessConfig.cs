@@ -1,6 +1,4 @@
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using System;
 using System.ComponentModel;
 using Terraria.GameContent;
@@ -9,7 +7,6 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
 using Microsoft.Xna.Framework;
-using ReLogic.Graphics;
 using Terraria.Localization;
 using Terraria.UI.Chat;
 using Terraria.ID;
@@ -52,6 +49,18 @@ namespace ScalingCrowdedness
 		[Slider]
 		public int ManualAdjustmentScalingIncrements { get; set; }
 
+		[DefaultValue(25)]
+		[Range(1, 500)]
+		[Increment(5)]
+		[Slider]
+		public int TownNPCsWithinHouseRange { get; set; }
+
+		[DefaultValue(120)]
+		[Range(2, 1000)]
+		[Increment(5)]
+		[Slider]
+		public int TownNPCsWithinVillageRange { get; set; }
+
 		[CustomModConfigItem(typeof(CalculationInformation))]
 		public bool CalculationInfo = new();
 
@@ -61,7 +70,7 @@ namespace ScalingCrowdedness
 			// Don't recalculate if in the main menu (causes problems during mod loading).
 			// But then it also doesn't update if you change the config in the main menu.
 			// ScalingCrowdednessPlayer.OnEnterWorld() also recalculates the thresholds to solve that.
-			if (Main.gameMenu == false)
+			if (!Main.gameMenu)
 			{
 				ModContent.GetInstance<ScalingCrowdedness>()?.FigureOutTheScaling();
 			}
