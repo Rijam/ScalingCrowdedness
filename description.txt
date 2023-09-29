@@ -1,4 +1,5 @@
 [c/ffc400:Scaling Crowdedness] is a simple mod that increases the number of Town NPCs that can be near each other before the crowding happiness penalty starts. The increase is based on how many Town NPCs are loaded. This means you can have more Town NPCs living near each other without having prices raised.
+This mod also has config options to change the distance between Town NPCs' housing flags that will count them as being close neighbors.
 
 Vanilla behavior:
 -  >= 4 npcsWithinHouse causes prices to be multiplied by 1.05

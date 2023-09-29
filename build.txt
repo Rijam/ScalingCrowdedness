@@ -1,6 +1,6 @@
 displayName = Scaling Crowdedness
 author = Rijam
-version = 1.4
+version = 1.5
 homepage = https://github.com/Rijam/ScalingCrowdedness
 hideCode = false
 hideResources = false

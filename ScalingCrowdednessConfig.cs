@@ -104,6 +104,7 @@ namespace ScalingCrowdedness
 
 			if (!IsPlayerLocalServerOwner(whoAmI))
 			{
+				//message = NetworkText.FromKey("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
 				message = Language.GetTextValue("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
 				return false;
 			}
