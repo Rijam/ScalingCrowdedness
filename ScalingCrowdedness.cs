@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Terraria;
 using Terraria.Chat;
 using Terraria.GameContent;
@@ -279,11 +279,12 @@ namespace ScalingCrowdedness
 		// Adapted from absoluteAquarian's GraphicsLib
 		public override object Call(params object[] args)
 		{
-			if (args is null)
-				throw new ArgumentNullException(nameof(args));
+			ArgumentNullException.ThrowIfNull(args);
 
 			if (args[0] is not string function)
+			{
 				throw new ArgumentException("Expected a function name for the first argument");
+			}
 
 			ScalingCrowdednessConfigServer configServer = ModContent.GetInstance<ScalingCrowdednessConfigServer>();
 
@@ -312,7 +313,7 @@ namespace ScalingCrowdedness
 		/// <returns>Returns a List NPC for all NPCs within 25 tiles.</returns>
 		private static List<NPC> GetNearbyResidentNPCs(NPC npc, out int npcsWithinHouse, out int npcsWithinVillage)
 		{
-			List<NPC> list = new();
+			List<NPC> list = [];
 			npcsWithinHouse = 0;
 			npcsWithinVillage = 0;
 			Vector2 npc1HomeTile = new(npc.homeTileX, npc.homeTileY);
@@ -436,14 +437,14 @@ namespace ScalingCrowdedness
 				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes")
 				{
 					configClient.ShowNumbersWhenTalkingToNPC = true;
-					ModConfigSave(configClient);
+					configClient.SaveChanges(); // ModConfigSave(configClient);
 					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = true;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.TownNPCChat.Enable"));
 				}
 				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no")
 				{
 					configClient.ShowNumbersWhenTalkingToNPC = false;
-					ModConfigSave(configClient);
+					configClient.SaveChanges();
 					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = false;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.TownNPCChat.Disable"));
 				}
@@ -459,14 +460,14 @@ namespace ScalingCrowdedness
 				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes")
 				{
 					configClient.ShowNumbersEnteringWorld = true;
-					ModConfigSave(configClient);
+					configClient.SaveChanges();
 					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = true;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.EnterWorld.Enable"));
 				}
 				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no")
 				{
 					configClient.ShowNumbersEnteringWorld = false;
-					ModConfigSave(configClient);
+					configClient.SaveChanges();
 					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = false;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.EnterWorld.Disable"));
 				}
@@ -485,25 +486,6 @@ namespace ScalingCrowdedness
 			{
 				Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.Description"));
 			}
-		}
-
-		/// <summary>
-		/// Copied from tModLoader because it was originally internal. Maybe this is a bad idea? lol
-		/// </summary>
-		/// <param name="modConfig">The config instance that needs to be saved.</param>
-		private static void ModConfigSave(ModConfig modConfig)
-		{
-			// Added for maybe more safety.
-			if (modConfig is null || ConfigManager.ModConfigPath is null || ConfigManager.serializerSettings is null)
-			{
-				return;
-			}
-
-			Directory.CreateDirectory(ConfigManager.ModConfigPath);
-			string filename = modConfig.Mod.Name + "_" + modConfig.Name + ".json";
-			string path = Path.Combine(ConfigManager.ModConfigPath, filename);
-			string json = JsonConvert.SerializeObject(modConfig, ConfigManager.serializerSettings);
-			File.WriteAllText(path, json);
 		}
 	}
 }

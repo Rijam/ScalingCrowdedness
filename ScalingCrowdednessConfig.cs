@@ -1,12 +1,12 @@
-using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.ComponentModel;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria.GameContent;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
 using Terraria.ModLoader.Config.UI;
-using Microsoft.Xna.Framework;
 using Terraria.Localization;
 using Terraria.UI.Chat;
 using Terraria.ID;
@@ -95,7 +95,7 @@ namespace ScalingCrowdedness
 			return false;
 		}
 
-		public override bool AcceptClientChanges(ModConfig pendingConfig, int whoAmI, ref string message)
+		public override bool AcceptClientChanges(ModConfig pendingConfig, int whoAmI, ref NetworkText message)
 		{
 			if (Main.netMode == NetmodeID.SinglePlayer)
 			{
@@ -104,8 +104,8 @@ namespace ScalingCrowdedness
 
 			if (!IsPlayerLocalServerOwner(whoAmI))
 			{
-				//message = NetworkText.FromKey("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
-				message = Language.GetTextValue("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
+				message = NetworkText.FromKey("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
+				// message = Language.GetTextValue("Mods.ScalingCrowdedness.Configs.ScalingCrowdednessConfigServer.MultiplayerMessage");
 				return false;
 			}
 			return base.AcceptClientChanges(pendingConfig, whoAmI, ref message);
