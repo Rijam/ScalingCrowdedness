@@ -1,17 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using Newtonsoft.Json;
 using Terraria;
 using Terraria.Chat;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.Config;
 
 namespace ScalingCrowdedness
 {
@@ -39,8 +36,9 @@ namespace ScalingCrowdedness
 			int count = 0;
 			for (int i = 0; i < NPCLoader.NPCCount; i++)
 			{
-				NPC npc = new();
-				npc.SetDefaults(i);
+				// NPC npc = new();
+				// npc.SetDefaults(i);
+				NPC npc = ContentSamples.NpcsByNetId[i];
 				if (npc.townNPC && !NPCID.Sets.NoTownNPCHappiness[npc.type] && !NPCID.Sets.IsTownPet[npc.type])
 				{
 					count++;
@@ -431,17 +429,17 @@ namespace ScalingCrowdedness
 
 			ScalingCrowdednessConfigClient configClient = ModContent.GetInstance<ScalingCrowdednessConfigClient>();
 
-			if (args[0].ToLower() == "townnpcchat" && args.Length >= 2)
+			if (args[0].Equals("townnpcchat", StringComparison.CurrentCultureIgnoreCase) && args.Length >= 2)
 			{
 				string args1 = args[1].ToLower();
-				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes")
+				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes" || args1 == "1")
 				{
 					configClient.ShowNumbersWhenTalkingToNPC = true;
 					configClient.SaveChanges(); // ModConfigSave(configClient);
 					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersWhenTalkingToNPC = true;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.TownNPCChat.Enable"));
 				}
-				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no")
+				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no" || args1 == "0")
 				{
 					configClient.ShowNumbersWhenTalkingToNPC = false;
 					configClient.SaveChanges();
@@ -454,17 +452,17 @@ namespace ScalingCrowdedness
 				}
 			}
 
-			else if (args[0].ToLower() == "enterworld" && args.Length >= 2)
+			else if (args[0].Equals("enterworld", StringComparison.CurrentCultureIgnoreCase) && args.Length >= 2)
 			{
 				string args1 = args[1].ToLower();
-				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes")
+				if (args1 == "true" || args1 == "enable" || args1 == "on" || args1 == "yes" || args1 == "1")
 				{
 					configClient.ShowNumbersEnteringWorld = true;
 					configClient.SaveChanges();
 					//Main.LocalPlayer.GetModPlayer<ScalingCrowdednessPlayer>().showNumbersEnteringWorld = true;
 					Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Commands.EnterWorld.Enable"));
 				}
-				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no")
+				else if (args1 == "false" || args1 == "disable" || args1 == "off" || args1 == "no" || args1 == "0")
 				{
 					configClient.ShowNumbersEnteringWorld = false;
 					configClient.SaveChanges();
@@ -477,7 +475,7 @@ namespace ScalingCrowdedness
 				}
 			}
 
-			else if (args[0].ToLower() == "getthreshold")
+			else if (args[0].Equals("getthreshold", StringComparison.CurrentCultureIgnoreCase))
 			{
 				Main.NewText(Language.GetTextValue("Mods.ScalingCrowdedness.Chat.OnEnterWorld", ModContent.GetInstance<ScalingCrowdedness>().minimumStartCrowding, ModContent.GetInstance<ScalingCrowdedness>().minimumHateCrowded));
 			}
